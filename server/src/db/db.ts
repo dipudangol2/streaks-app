@@ -1,30 +1,23 @@
 import { Pool } from "pg";
 import dotenv from "dotenv";
+import { Prisma, PrismaClient } from "../generated/prisma";
+const prisma = new PrismaClient();
 
-dotenv.config();
 
-const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB_NAME,
-    password: String(process.env.DB_PASSWORD),
-    port: Number(process.env.DB_PORT)
-});
+export const insertUser = async (user: Prisma.UserCreateInput) => {
+    return await prisma.user.create({ data: user });
+}
 
-async function verifyConnection(): Promise<void> {
-    try {
-
-        const client = await pool.connect();
-        console.log("Connected to Postgres DB");
-        client.release();
-
-    } catch (error) {
-        console.error("Error connecting to the database:" + error);
-    }
+export const getUser = async (email: string) => {
+    return await prisma.user.findUnique({
+        where: {
+            email: email,
+        },
+        omit: {
+            password: true,
+        }
+    })
+    
 }
 
 
-
-verifyConnection();
-
-export default pool;
