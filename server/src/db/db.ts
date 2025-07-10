@@ -1,5 +1,3 @@
-import { Pool } from "pg";
-import dotenv from "dotenv";
 import { Prisma, PrismaClient } from "../generated/prisma";
 const prisma = new PrismaClient();
 
