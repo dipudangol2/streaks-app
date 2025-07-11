@@ -14,15 +14,11 @@ export const signup = async (request: Request, response: Response, next: NextFun
         const hash = await hashPassword(password);
         const user = await createUser({ email, password: hash })
         console.log(user);
-        response.cookie("jwt", createToken(email, user.id), {
-            maxAge: MAX_AGE,
-            secure: true,
-            sameSite: "none"
-        })
+
 
         response.status(201).json({
             user: {
-                user: user.id,
+                userId: user.id,
                 email: user.email,
             }
         });
@@ -63,7 +59,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
 
         response.status(200).json({
             user: {
-                user: user.id,
+                userId: user.id,
                 email: user.email,
             }
         });
