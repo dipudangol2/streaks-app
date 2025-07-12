@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken";
 const SALT_ROUNDS = 12;
 const MAX_AGE = 3 * 24 * 60 * 60 * 1000;
 
+
 export const hashPassword = async (password: string): Promise<string> => {
     return await bcrypt.hash(password, SALT_ROUNDS);
 }

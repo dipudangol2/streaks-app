@@ -11,5 +11,4 @@ export interface HabitInput {
     frequency: string;
     startDate: Date;
     userId: string;
-    user: User;
 }
