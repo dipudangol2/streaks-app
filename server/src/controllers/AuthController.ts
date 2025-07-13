@@ -8,7 +8,10 @@ export const signup = async (request: Request, response: Response, next: NextFun
     try {
         const { email, password } = request.body;
         if (!email || !password) {
-            response.status(400).send("Email and password is required!");
+            response.status(400).json({
+                success: false,
+                message: "Email and password is required!",
+            });
             return;
         }
         const hash = await hashPassword(password);
@@ -17,16 +20,18 @@ export const signup = async (request: Request, response: Response, next: NextFun
 
 
         response.status(201).json({
-            user: {
+            success: true,
+            data: {
                 userId: user.id,
                 email: user.email,
             }
         });
     } catch (error) {
         console.error(error)
-        response.status(500).send("Internal Server Error");
-        return;
-
+        response.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
     }
 
 
@@ -35,19 +40,28 @@ export const login = async (request: Request, response: Response, next: NextFunc
     try {
         const { email, password } = request.body;
         if (!email || !password) {
-            response.status(400).send("Email and password is required!");
+            response.status(400).json({
+                success: false,
+                message: "Email and password is required!"
+            });
             return;
         }
         const user = await getUserByEmail(email);
         if (user === null) {
-            response.status(404).send("User not found!");
+            response.status(404).json({
+                success: false,
+                message: "User not found!"
+            });
             return;
         }
         console.log(user);
         const auth = await comparePasswords(password, user.password);
         console.log(auth);
         if (!auth) {
-            response.status(400).send("Passwords do not match");
+            response.status(400).json({
+                success: true,
+                message: "Passwords do not match"
+            });
             return;
         }
 
@@ -65,10 +79,11 @@ export const login = async (request: Request, response: Response, next: NextFunc
         });
     } catch (error) {
         console.error(error)
-        response.status(500).send("Internal Server Error");
-        return;
+        response.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
 
     }
-
-
 }
+

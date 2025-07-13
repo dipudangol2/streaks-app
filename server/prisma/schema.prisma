@@ -13,49 +13,46 @@ datasource db {
   url      = env("DB_URL")
 }
 
-
 model User {
-  id            String    @id @default(uuid())
-  email         String    @unique
-  password      String
-  name          String?
-  habits        Habit[]   @relation("UserHabits")
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  name      String?
+  habits    Habit[]  @relation("UserHabits")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  isAdmin   Boolean  @default(false)
 }
 
 model Habit {
-  id            String          @id @default(uuid())
-  title         String
-  description   String?
-  frequency     String          // e.g. "daily", "weekly"
-  startDate     DateTime
-  archived      Boolean         @default(false)
-  userId        String
-  user          User            @relation("UserHabits", fields: [userId], references: [id])
-  checkins      HabitCheckin[]
-  streak        Streak?
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  frequency   String // e.g. "daily", "weekly"
+  startDate   DateTime
+  archived    Boolean        @default(false)
+  userId      String
+  user        User           @relation("UserHabits", fields: [userId], references: [id])
+  checkins    HabitCheckin[]
+  streak      Streak?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
 }
 
-
 model HabitCheckin {
-  id        String   @id @default(uuid())
-  habitId   String
-  date      DateTime // Date of check-in (no duplicates for same habit + date)
-  habit     Habit    @relation(fields: [habitId], references: [id])
+  id      String   @id @default(uuid())
+  habitId String
+  date    DateTime // Date of check-in (no duplicates for same habit + date)
+  habit   Habit    @relation(fields: [habitId], references: [id])
 
   @@unique([habitId, date]) // Ensures one check-in per habit per day
 }
 
-
 model Streak {
-  id              String   @id @default(uuid())
-  habitId         String   @unique
-  currentCount    Int      @default(0)
-  longestCount    Int      @default(0)
+  id              String    @id @default(uuid())
+  habitId         String    @unique
+  currentCount    Int       @default(0)
+  longestCount    Int       @default(0)
   lastCheckinDate DateTime?
-  habit           Habit    @relation(fields: [habitId], references: [id])
+  habit           Habit     @relation(fields: [habitId], references: [id])
 }
-
