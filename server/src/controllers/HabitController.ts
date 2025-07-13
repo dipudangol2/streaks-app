@@ -1,15 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { HabitInput } from "../interfaces/types";
-import { createHabit } from "../models/habit.model";
+import { fetchAllHabits, habitCreate } from "../models/habit.model";
 
 
 
-export const CreateHabit = async (request: Request, response: Response, next: NextFunction) => {
+export const createHabit = async (request: Request, response: Response, next: NextFunction) => {
     try {
         const { title, description, frequency, startDate }: HabitInput = request.body;
         const userId: string = (request as any).userId;
 
-        const habit = await createHabit({
+        const habit = await habitCreate({
             title,
             description,
             frequency,
@@ -21,10 +21,32 @@ export const CreateHabit = async (request: Request, response: Response, next: Ne
 
     } catch (error) {
         console.error(error)
-        response.status(500).send("Internal Server Error");
+        response.status(500).json({
+            success: false,
+            message: "Internal Server Error"
+        });
         return;
 
     }
 
 
+}
+
+export const getAllHabits = async (request: Request, response: Response, next: NextFunction) => {
+    try {
+        const userId: string = (request as any).userId;
+        const userHabits = await fetchAllHabits(userId);
+        console.log(userHabits);
+        response.status(200).json({
+            success: true,
+            data: userHabits
+        });
+
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({
+            success: false,
+            message: "Internal Server Error."
+        })
+    }
 }
