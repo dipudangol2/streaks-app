@@ -4,6 +4,7 @@ declare global {
     namespace Express {
         interface Request {
             userId?: string;
+            isAdmin?: boolean;
         }
     }
 }
@@ -22,8 +23,9 @@ export const verifyToken = (request: Request, response: Response, next: NextFunc
                 response.status(403).json({ message: "Invalid Token" });
                 return;
             }
-            if (typeof payload === "object" && payload !== null && "userId" in payload) {
+            if (typeof payload === "object" && payload !== null && "userId" in payload && "isAdmin" in payload) {
                 request.userId = (payload as { userId: string }).userId;
+                request.isAdmin = (payload as { isAdmin: boolean }).isAdmin;
                 return next();
             }
             response.status(403).json({ message: "Malformed token payload" });

@@ -54,9 +54,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
             });
             return;
         }
-        console.log(user);
         const auth = await comparePasswords(password, user.password);
-        console.log(auth);
         if (!auth) {
             response.status(400).json({
                 success: true,
@@ -65,7 +63,7 @@ export const login = async (request: Request, response: Response, next: NextFunc
             return;
         }
 
-        response.cookie("jwt", createToken(email, user.id), {
+        response.cookie("jwt", createToken(email, user.id, user.isAdmin), {
             maxAge: MAX_AGE,
             secure: true,
             sameSite: "none"

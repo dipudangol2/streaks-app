@@ -13,12 +13,12 @@ export const comparePasswords = async (plain: string, hashed: string): Promise<B
     return await bcrypt.compare(plain, hashed);
 }
 
-export const createToken = (email: string, userId: string) => {
+export const createToken = (email: string, userId: string, isAdmin: boolean) => {
     const jwtKey = process.env.JWT_KEY;
     if (!jwtKey) {
         throw new Error("JWT_KEY is not defined in environment variables");
     }
-    return jwt.sign({ email, userId }, jwtKey, {
+    return jwt.sign({ email, userId, isAdmin }, jwtKey, {
         expiresIn: MAX_AGE,
     });
 }
