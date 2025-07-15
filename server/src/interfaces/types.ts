@@ -32,3 +32,8 @@ export interface HabitInput {
     startDate: Date;
     userId: string;
 }
+
+export interface habitCheckinInput {
+    habitId: string;
+    date: Date;
+}

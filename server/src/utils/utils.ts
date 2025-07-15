@@ -22,3 +22,13 @@ export const createToken = (email: string, userId: string, isAdmin: boolean) => 
         expiresIn: MAX_AGE,
     });
 }
+export const isNextDay = (prevDate: Date, currentDate: Date) => {
+    const prev = new Date(prevDate);
+    prev.setDate(prev.getDate() + 1);
+
+    return (
+        prev.getDate() === currentDate.getDate() &&
+        prev.getMonth() === currentDate.getMonth() &&
+        prev.getFullYear() === currentDate.getFullYear()
+    );
+}
