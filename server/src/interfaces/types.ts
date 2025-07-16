@@ -37,3 +37,11 @@ export interface habitCheckinInput {
     habitId: string;
     date: Date;
 }
+
+export interface streakInput {
+    habitId: string;
+    currentCount?: number;
+    longestCount?: number;
+    lastCheckinDate: Date | null;
+
+}

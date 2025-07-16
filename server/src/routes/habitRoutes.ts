@@ -6,9 +6,9 @@ import { createHabit, deleteHabit, getAllHabits, getHabit, habitCheckin, updateH
 const habitRoutes: Router = Router();
 
 habitRoutes.post("/create", verifyToken, createHabit);
-habitRoutes.get("/get-all", verifyToken, getAllHabits);
+habitRoutes.get("/", verifyToken, getAllHabits);
 habitRoutes.put("/:id", verifyToken, updateHabit);
 habitRoutes.delete("/remove/:id", verifyToken, deleteHabit);
 habitRoutes.get("/:id", verifyToken, getHabit);
-habitRoutes.post("/checkin/:id", verifyToken, habitCheckin);
+habitRoutes.post("/:id/checkin", verifyToken, habitCheckin);
 export default habitRoutes;

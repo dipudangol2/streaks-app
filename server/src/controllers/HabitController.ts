@@ -1,8 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { habitCheckinInput, HabitCreateInput, HabitUpdateInput } from "../interfaces/types";
+import { HabitCreateInput, HabitUpdateInput, streakInput } from "../interfaces/types";
 import { fetchAllHabits, habitCreate } from "../models/habit.model";
 import prisma from "../config/db";
 import { Prisma } from "@prisma/client";
+import { isNextDay } from "../utils/utils";
 
 
 
@@ -206,3 +207,97 @@ export const getHabit = async (request: Request, response: Response, next: NextF
     }
 }
 
+export const habitCheckin = async (request: Request, response: Response) => {
+    try {
+        const habitId = request.params.id;
+        const userId = request.userId!;
+        const now = new Date();
+        const checkinDate = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate()
+        ));
+        const startOfDay = checkinDate;
+        const endOfDay = new Date(Date.UTC(
+            now.getUTCFullYear(),
+            now.getUTCMonth(),
+            now.getUTCDate(),
+            23, 59, 59, 999
+        ));
+
+        const habit = await prisma.habit.findUnique({
+            where: { id: habitId, userId }
+        });
+        if (!habit) {
+            response.status(404).json({
+                success: false,
+                message: "Habit not found"
+            });
+            return;
+        }
+
+        const existingCheckin = await prisma.habitCheckin.findFirst({
+            where: {
+                habitId,
+                date: { gte: startOfDay, lt: endOfDay }
+            }
+        });
+        if (existingCheckin) {
+            response.status(409).json({
+                success: false,
+                message: "Already checked in today"
+            });
+            return;
+        };
+        console.log(existingCheckin)
+
+        const currentStreak = await prisma.streak.findUnique({
+            where: { habitId }
+        });
+        let streak: streakInput;
+        if (!currentStreak) {
+            streak = await prisma.streak.create({
+                data: {
+                    habitId,
+                    lastCheckinDate: checkinDate
+                }
+            })
+        } else {
+            streak = currentStreak;
+        }
+
+        const isConsecutive = streak && streak.lastCheckinDate ?
+            isNextDay(streak.lastCheckinDate, checkinDate) :
+            false;
+
+        const newCurrent = isConsecutive && streak.currentCount ? streak.currentCount + 1 : 1;
+        const newLongest = Math.max(
+            currentStreak?.longestCount || 0,
+            newCurrent
+        );
+
+        const [checkin] = await prisma.$transaction([
+            prisma.habitCheckin.create({
+                data: { habitId, date: checkinDate }
+            }),
+            prisma.streak.update({
+                where: { habitId },
+                data: {
+                    currentCount: newCurrent,
+                    longestCount: newLongest,
+                    lastCheckinDate: checkinDate
+                },
+
+            })
+        ]);
+
+        response.status(201).json({
+            success: true,
+            data: checkin
+        });
+
+    } catch (error) {
+        console.error(error);
+        response.status(500).json({ error: "Server error" });
+    }
+};
